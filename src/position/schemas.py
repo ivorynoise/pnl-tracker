@@ -1,0 +1,2 @@
+class PositionResponse(BaseModel):
+    pass

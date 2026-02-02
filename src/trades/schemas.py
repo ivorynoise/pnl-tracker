@@ -1,0 +1,2 @@
+class TradeResponse(BaseModel):
+    pass
