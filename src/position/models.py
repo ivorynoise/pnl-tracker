@@ -52,9 +52,15 @@ class PositionStore:
         """Process a buy trade."""
         if position.quantity >= 0:
             # Adding to long position - update avg price
-            total_cost = (position.quantity * position.avg_price) + (trade.quantity * trade.price)
+            total_cost = (position.quantity * position.avg_price) + (
+                trade.quantity * trade.price
+            )
             position.quantity += trade.quantity
-            position.avg_price = total_cost / position.quantity if position.quantity != 0 else 0
+            position.avg_price = (
+                total_cost / position.quantity
+                if position.quantity != 0
+                else Decimal("0")
+            )
         else:
             # Closing short position
             close_qty = min(trade.quantity, abs(position.quantity))
@@ -73,9 +79,15 @@ class PositionStore:
         """Process a sell trade."""
         if position.quantity <= 0:
             # Adding to short position - update avg price
-            total_cost = (abs(position.quantity) * position.avg_price) + (trade.quantity * trade.price)
+            total_cost = (abs(position.quantity) * position.avg_price) + (
+                trade.quantity * trade.price
+            )
             position.quantity -= trade.quantity
-            position.avg_price = total_cost / abs(position.quantity) if position.quantity != 0 else 0
+            position.avg_price = (
+                total_cost / abs(position.quantity)
+                if position.quantity != 0
+                else Decimal("0")
+            )
         else:
             # Closing long position
             close_qty = min(trade.quantity, position.quantity)
@@ -116,5 +128,5 @@ class PositionStore:
         return position.realized_pnl if position else Decimal("0")
 
 
-# Global singleton instance to mimic database or datastore 
+# Global singleton instance to mimic database or datastore
 position_store = PositionStore()
