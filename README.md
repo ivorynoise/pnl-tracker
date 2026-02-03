@@ -25,3 +25,6 @@ The floating point precision issue is a classic problem. For financial calculati
 
 --
 mention about tests and 
+
+--- 
+I did not consider any push based updates like Real time pnl over websocket. The design and engineering decisions will change if we have to incorporate such features. 

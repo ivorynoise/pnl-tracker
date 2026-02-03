@@ -12,14 +12,13 @@ def get_portfolio() -> PortfolioResponse:
     """Return the current portfolio with all positions and PnL."""
     positions = []
     for symbol, position in position_store.get_all_positions().items():
-        unrealized_pnl = portfolio_service.get_position_unrealized_pnl(symbol)
         positions.append(
             PositionSchema(
                 symbol=position.symbol,
                 quantity=position.quantity,
                 avg_price=position.avg_price,
                 realized_pnl=position.realized_pnl,
-                unrealized_pnl=unrealized_pnl,
+                unrealized_pnl=position_store.get_unrealized_pnl(symbol),
             )
         )
 

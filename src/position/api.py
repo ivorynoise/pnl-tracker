@@ -16,7 +16,8 @@ def get_symbol_position(symbol: str) -> PositionResponse:
         symbol=position.symbol,
         quantity=position.quantity,
         avg_price=position.avg_price,
-        realized_pnl=position.realized_pnl
+        realized_pnl=position.realized_pnl,
+        unrealized_pnl=position_store.get_unrealized_pnl(symbol)
     )
 
 
@@ -30,7 +31,8 @@ def get_all_positions() -> AllPositionsResponse:
                 symbol=p.symbol,
                 quantity=p.quantity,
                 avg_price=p.avg_price,
-                realized_pnl=p.realized_pnl
+                realized_pnl=p.realized_pnl,
+                unrealized_pnl=position_store.get_unrealized_pnl(symbol)
             )
             for symbol, p in positions.items()
         }

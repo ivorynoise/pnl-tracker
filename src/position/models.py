@@ -90,12 +90,19 @@ class PositionStore:
                 position.quantity = -remaining_qty
                 position.avg_price = trade.price
 
-    def calculate_unrealized_pnl(self, symbol: str, current_price: Decimal) -> Decimal:
-        """Calculate unrealized PnL for a position given current price."""
+    def get_unrealized_pnl(self, symbol: str) -> Decimal:
+        """Get unrealized PnL for a specific position using current price."""
+        from prices.models import price_store
+
         position = self.positions.get(symbol)
         if not position or position.quantity == 0:
             return Decimal("0")
 
+        price = price_store.get_price(symbol)
+        if not price:
+            return Decimal("0")
+
+        current_price = Decimal(str(price.price))
         if position.quantity > 0:
             # Long: profit if price went up
             return position.quantity * (current_price - position.avg_price)
@@ -103,7 +110,7 @@ class PositionStore:
             # Short: profit if price went down
             return abs(position.quantity) * (position.avg_price - current_price)
 
-    def calculate_realized_pnl(self, symbol: str) -> Decimal:
+    def get_realized_pnl(self, symbol: str) -> Decimal:
         """Get realized PnL for a symbol."""
         position = self.positions.get(symbol)
         return position.realized_pnl if position else Decimal("0")

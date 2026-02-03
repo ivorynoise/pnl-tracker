@@ -13,6 +13,7 @@ class PositionResponse(BaseModel):
     quantity: DecimalField
     avg_price: DecimalField
     realized_pnl: DecimalField
+    unrealized_pnl: DecimalField
 
 
 class AllPositionsResponse(BaseModel):
