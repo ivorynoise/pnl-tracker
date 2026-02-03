@@ -1,14 +1,18 @@
 from decimal import Decimal
-from typing import Dict
+from typing import Annotated, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+# Annotated Decimal type with example for OpenAPI
+DecimalField = Annotated[Decimal, Field(examples=["100.50"])]
 
 
 class PositionResponse(BaseModel):
-    symbol: str
-    quantity: Decimal
-    avg_price: Decimal
-    realized_pnl: Decimal
+    symbol: str = Field(examples=["BTCUSD"])
+    quantity: DecimalField
+    avg_price: DecimalField
+    realized_pnl: DecimalField
 
 
 class AllPositionsResponse(BaseModel):

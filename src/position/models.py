@@ -109,5 +109,5 @@ class PositionStore:
         return position.realized_pnl if position else Decimal("0")
 
 
-# Global singleton instance
+# Global singleton instance to mimic database or datastore 
 position_store = PositionStore()

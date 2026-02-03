@@ -47,5 +47,5 @@ class TradeStore:
         return [t for t in self.trades if t.symbol == symbol]
 
 
-# Global singleton instance
+# Global singleton instance to mimic database or datastore 
 trade_store = TradeStore()

@@ -41,5 +41,5 @@ class PriceStore:
         return self.prices
 
 
-# Global singleton instance
+# Global singleton instance to mimic database or datastore 
 price_store = PriceStore()

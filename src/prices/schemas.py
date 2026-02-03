@@ -1,16 +1,21 @@
 from datetime import datetime
-from typing import Dict
+from decimal import Decimal
+from typing import Annotated, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+# Annotated Decimal type with example for OpenAPI
+DecimalField = Annotated[Decimal, Field(examples=["41000.50"])]
 
 
 class PriceUpdate(BaseModel):
-    price: float
+    price: DecimalField
 
 
 class PriceResponse(BaseModel):
-    symbol: str
-    price: float
+    symbol: str = Field(examples=["BTCUSD"])
+    price: DecimalField
     timestamp: datetime
 
 

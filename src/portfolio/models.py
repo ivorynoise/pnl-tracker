@@ -1,17 +1,61 @@
-from pydantic import BaseModel
+from decimal import Decimal
+from typing import Optional
 
 
-class Portfolio(BaseModel):
-    # DB table for portfolio
-    # mimics Database
+class PortfolioService:
+    """Service to aggregate portfolio data from positions and prices."""
 
-    # Skipping user id for now as we are designing for single user
-    # user_id: str
-    unrealized_pnl: float = 0.0
-    realized_pnl: float = 0.0
+    _instance: Optional["PortfolioService"] = None
 
-    def update_unrealized_pnl(self, amount: float):
-        pass
+    def __new__(cls) -> "PortfolioService":
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
-    def update_realized_pnl(self, amount: float):
-        pass
+    def get_total_realized_pnl(self) -> Decimal:
+        """Get total realized PnL across all positions."""
+        from position.models import position_store
+
+        total = Decimal("0")
+        for position in position_store.get_all_positions().values():
+            total += position.realized_pnl
+        return total
+
+    def get_total_unrealized_pnl(self) -> Decimal:
+        """Get total unrealized PnL across all positions using current prices."""
+        from position.models import position_store
+        from prices.models import price_store
+
+        total = Decimal("0")
+        for symbol, position in position_store.get_all_positions().items():
+            if position.quantity == 0:
+                continue
+
+            price = price_store.get_price(symbol)
+            if price:
+                unrealized = position_store.calculate_unrealized_pnl(
+                    symbol, Decimal(str(price.price))
+                )
+                total += unrealized
+        return total
+
+    def get_position_unrealized_pnl(self, symbol: str) -> Decimal:
+        """Get unrealized PnL for a specific position."""
+        from position.models import position_store
+        from prices.models import price_store
+
+        position = position_store.get_position(symbol)
+        if not position or position.quantity == 0:
+            return Decimal("0")
+
+        price = price_store.get_price(symbol)
+        if not price:
+            return Decimal("0")
+
+        return position_store.calculate_unrealized_pnl(
+            symbol, Decimal(str(price.price))
+        )
+
+
+# Global singleton instance to mimic database or datastore 
+portfolio_service = PortfolioService()
