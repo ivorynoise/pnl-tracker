@@ -12,6 +12,13 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
+
+
 API_V1_PREFIX = "/api/v1"
 
 app.include_router(trades_router, prefix=API_V1_PREFIX)
