@@ -8,8 +8,11 @@ https://pnl-tracker.demo.ivorynoise.com/docs
 
 ## Flow
 To test the flow manually using swagger: 
-1. I have already added example and you can see the results using `/trades/` & `/portfolio` endpoint
-1. Please clear all datastore before hitting any route. 
+1. Please see the results using `/trades/` & `/portfolio` endpoint. I have added same test data to it as mentioned in pdf :)
+
+The data can be seen here: https://pnl-tracker.demo.ivorynoise.com/api/v1/trades
+
+1. Please clear all datastore before hitting any route.
 
 
 ## Design Choices
