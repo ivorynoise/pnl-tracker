@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from main import app
 from trades.models import trade_store
 from position.models import position_store
+from prices.models import price_store
 
 
 @pytest.fixture
@@ -24,6 +25,8 @@ def reset_stores():
     # This is done to showcase the idea; in real scenarios, I will conside more robust state management
     trade_store.trades = []
     position_store.positions = {}
+    price_store.prices = {}
     yield
     trade_store.trades = []
     position_store.positions = {}
+    price_store.prices = {}

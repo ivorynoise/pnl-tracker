@@ -27,6 +27,7 @@ class TestPositionsAPI:
         assert Decimal(data["quantity"]) == Decimal("0.3")
         assert Decimal(data["avg_price"]) == Decimal("41000")
         assert Decimal(data["realized_pnl"]) == Decimal("0")
+        assert Decimal(data["unrealized_pnl"]) == Decimal("0")  # No price set
 
     def test_position_average_price_calculation(self, client):
         """Test average price calculation with multiple buys."""
@@ -300,3 +301,237 @@ class TestPositionsAPI:
 
         # With Decimal, should be exactly -0.3 not -0.29999999999999993
         assert Decimal(data["quantity"]) == Decimal("-0.3")
+
+
+class TestUnrealizedPnL:
+    """Test cases for unrealized PnL calculations."""
+
+    def test_unrealized_pnl_no_price(self, client):
+        """Test unrealized PnL is 0 when no price is set."""
+        # Buy position
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # No price set, unrealized PnL should be 0
+        assert Decimal(data["unrealized_pnl"]) == Decimal("0")
+
+    def test_unrealized_pnl_long_profit(self, client):
+        """Test unrealized PnL for long position in profit."""
+        # Buy 0.5 @ 41000
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        # Set current price to 43000
+        client.post("/api/v1/prices/BTCUSD", json={"price": "43000"})
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # Unrealized PnL: 0.5 * (43000 - 41000) = 1000
+        assert Decimal(data["unrealized_pnl"]) == Decimal("1000")
+
+    def test_unrealized_pnl_long_loss(self, client):
+        """Test unrealized PnL for long position in loss."""
+        # Buy 0.5 @ 41000
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        # Set current price to 39000
+        client.post("/api/v1/prices/BTCUSD", json={"price": "39000"})
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # Unrealized PnL: 0.5 * (39000 - 41000) = -1000
+        assert Decimal(data["unrealized_pnl"]) == Decimal("-1000")
+
+    def test_unrealized_pnl_short_profit(self, client):
+        """Test unrealized PnL for short position in profit."""
+        # Sell 0.5 @ 42000 (open short)
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "sell",
+                "price": "42000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        # Set current price to 40000 (price dropped, short profits)
+        client.post("/api/v1/prices/BTCUSD", json={"price": "40000"})
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # Unrealized PnL: 0.5 * (42000 - 40000) = 1000
+        assert Decimal(data["unrealized_pnl"]) == Decimal("1000")
+
+    def test_unrealized_pnl_short_loss(self, client):
+        """Test unrealized PnL for short position in loss."""
+        # Sell 0.5 @ 42000 (open short)
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "sell",
+                "price": "42000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        # Set current price to 44000 (price went up, short loses)
+        client.post("/api/v1/prices/BTCUSD", json={"price": "44000"})
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # Unrealized PnL: 0.5 * (42000 - 44000) = -1000
+        assert Decimal(data["unrealized_pnl"]) == Decimal("-1000")
+
+    def test_unrealized_pnl_updates_with_price_change(self, client):
+        """Test that unrealized PnL updates when price changes."""
+        # Buy 0.5 @ 41000
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+
+        # Initial price: 42000
+        client.post("/api/v1/prices/BTCUSD", json={"price": "42000"})
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+        # Unrealized PnL: 0.5 * (42000 - 41000) = 500
+        assert Decimal(data["unrealized_pnl"]) == Decimal("500")
+
+        # Price increases to 45000
+        client.post("/api/v1/prices/BTCUSD", json={"price": "45000"})
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+        # Unrealized PnL: 0.5 * (45000 - 41000) = 2000
+        assert Decimal(data["unrealized_pnl"]) == Decimal("2000")
+
+        # Price drops to 38000
+        client.post("/api/v1/prices/BTCUSD", json={"price": "38000"})
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+        # Unrealized PnL: 0.5 * (38000 - 41000) = -1500
+        assert Decimal(data["unrealized_pnl"]) == Decimal("-1500")
+
+    def test_unrealized_pnl_zero_position(self, client):
+        """Test unrealized PnL is 0 for closed position."""
+        # Buy and then sell same quantity
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-002",
+                "symbol": "BTCUSD",
+                "side": "sell",
+                "price": "42000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:31:48.534Z",
+            },
+        )
+
+        # Set a price
+        client.post("/api/v1/prices/BTCUSD", json={"price": "45000"})
+
+        response = client.get("/api/v1/positions/BTCUSD")
+        data = response.json()
+
+        # Position is 0, unrealized PnL should be 0
+        assert Decimal(data["quantity"]) == Decimal("0")
+        assert Decimal(data["unrealized_pnl"]) == Decimal("0")
+        # But realized PnL should be captured
+        assert Decimal(data["realized_pnl"]) == Decimal("500")
+
+    def test_unrealized_pnl_multiple_positions(self, client):
+        """Test unrealized PnL for multiple positions."""
+        # Buy BTCUSD
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-001",
+                "symbol": "BTCUSD",
+                "side": "buy",
+                "price": "41000",
+                "quantity": "0.5",
+                "timestamp": "2026-02-03T16:30:48.534Z",
+            },
+        )
+        # Buy ETHUSD
+        client.post(
+            "/api/v1/trades",
+            json={
+                "id": "trade-002",
+                "symbol": "ETHUSD",
+                "side": "buy",
+                "price": "2500",
+                "quantity": "2.0",
+                "timestamp": "2026-02-03T16:31:48.534Z",
+            },
+        )
+
+        # Set prices
+        client.post("/api/v1/prices/BTCUSD", json={"price": "43000"})
+        client.post("/api/v1/prices/ETHUSD", json={"price": "2700"})
+
+        response = client.get("/api/v1/positions")
+        data = response.json()
+
+        # BTCUSD: 0.5 * (43000 - 41000) = 1000
+        assert Decimal(data["positions"]["BTCUSD"]["unrealized_pnl"]) == Decimal("1000")
+        # ETHUSD: 2.0 * (2700 - 2500) = 400
+        assert Decimal(data["positions"]["ETHUSD"]["unrealized_pnl"]) == Decimal("400")
