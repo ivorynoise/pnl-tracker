@@ -16,3 +16,12 @@ position.quantity += trade.quantity
 position.avg_price = total_cost / position.quantity
 
 The average price is recalculated as a weighted average each time you add to the position.
+
+
+-----
+
+The floating point precision issue is a classic problem. For financial calculations, you should use Decimal instead of float
+
+
+--
+mention about tests and 
