@@ -27,13 +27,13 @@ https://github.com/ivorynoise/pnl-tracker/blob/978053f5ac0eb6d9c478fbbca82439869
 I avoided any custom class/conversion as I wanted to focus on clarity and keep the excercise short. 
 
 ### Choice 3: Use of singleton classes
-All datastores were mimiced using singleton classes
+All datastores were mimicked using singleton classes
 
 ### Choice 4: Wrote tests for Positions 
 Test coverage was considered only for positions as it is where the core logic lives
 
 ### Choice 5: No real time updates
-The market price can be mimiced using `/api/v1/prices` endpoint. Also, I did not optimise for real-time pnl updates. The design and engineering decisions shown here will change for such features.
+The market price can be mimicked using `/api/v1/prices` endpoint. Also, I did not optimise for real-time pnl updates. The design and engineering decisions shown here will change for such features.
 
 ### Choice 6: Fee Avoidance
 I did not consider fee while computing pnl
