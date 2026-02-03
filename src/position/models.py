@@ -4,7 +4,8 @@ from trades.models import Trade
 
 
 class Position:
-    def __init__(self):
+    def __init__(self, symbol: str = ""):
+        self.symbol = symbol
         self.quantity = 0.0
         self.avg_price = 0.0
         self.realized_pnl = 0.0

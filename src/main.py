@@ -5,7 +5,12 @@ from position.api import router as position_router
 from portfolio.api import router as portfolio_router
 from prices.api import router as prices_router
 
-app = FastAPI()
+app = FastAPI(
+    title="Pnl Tracker API",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
 
 app.include_router(trades_router)
 app.include_router(position_router)

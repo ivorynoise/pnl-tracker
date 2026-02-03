@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from trades.models import Trade
-from trades.schemas import TradeResponse
 
 router = APIRouter(prefix="/trades", tags=["trades"])
 
