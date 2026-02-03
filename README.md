@@ -15,17 +15,10 @@ To test the flow manually using swagger:
 ## Design Choices
 
 #### Choice 1: I implemented average-cost as the primary PnL method for simplicity and clarity
+Logic is presented here
+https://github.com/ivorynoise/pnl-tracker/blob/978053f5ac0eb6d9c478fbbca82439869ad73805/src/position/models.py#L51
 
-Here's how it works in the code: 
 
-When adding to a position:
-```
-# Adding to long position - update avg price
-total_cost = (position.quantity * position.avg_price) + (trade.quantity * trade.price)
-position.quantity += trade.quantity
-position.avg_price = total_cost / position.quantity
-```
-The average price is recalculated as a weighted average each time you add to the position.
 
 ### Choice 2: Use of Decimal class to avoid classical floating point errors that happen
 I avoided any custom class/conversion as I wanted to focus on clarity and keep the excercise short. 
