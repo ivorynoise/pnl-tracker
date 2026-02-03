@@ -1,16 +1,25 @@
+from fastapi import APIRouter
 
-@app.post("/trades")
+from trades.models import Trade
+from trades.schemas import TradeResponse
+
+router = APIRouter(prefix="/trades", tags=["trades"])
+
+
+@router.post("")
 def on_trade(trade: Trade):
     # Update the trade store with the new trade
     # update the position Store accordingly
     pass
 
-@app.get("/trades")
+
+@router.get("")
 def get_trades():
     # Update the trade store with the new trade
     # update the position Store accordingly
     pass
 
-@app.get("/price/:symbol")
-def get_symbol_trades():
+
+@router.get("/{symbol}")
+def get_symbol_trades(symbol: str):
     pass

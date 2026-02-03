@@ -1,7 +1,13 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Dict
-from datetime import datetime
+from fastapi import FastAPI
 
-if __name__ == "__main__":
-    main()
+from trades.api import router as trades_router
+from position.api import router as position_router
+from portfolio.api import router as portfolio_router
+from prices.api import router as prices_router
+
+app = FastAPI()
+
+app.include_router(trades_router)
+app.include_router(position_router)
+app.include_router(portfolio_router)
+app.include_router(prices_router)
