@@ -12,7 +12,9 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-app.include_router(trades_router)
-app.include_router(position_router)
-app.include_router(portfolio_router)
-app.include_router(prices_router)
+API_V1_PREFIX = "/api/v1"
+
+app.include_router(trades_router, prefix=API_V1_PREFIX)
+app.include_router(position_router, prefix=API_V1_PREFIX)
+app.include_router(portfolio_router, prefix=API_V1_PREFIX)
+app.include_router(prices_router, prefix=API_V1_PREFIX)
