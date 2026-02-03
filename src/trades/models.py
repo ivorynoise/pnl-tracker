@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
@@ -14,8 +15,8 @@ class Trade(BaseModel):
     id: str
     symbol: str
     side: TradeSide
-    price: float
-    quantity: float
+    price: Decimal
+    quantity: Decimal
     timestamp: datetime
 
 

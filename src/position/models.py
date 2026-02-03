@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Dict, Optional
 
 from trades.models import Trade
@@ -6,9 +7,9 @@ from trades.models import Trade
 class Position:
     def __init__(self, symbol: str = ""):
         self.symbol = symbol
-        self.quantity = 0.0  # positive = long, negative = short
-        self.avg_price = 0.0
-        self.realized_pnl = 0.0
+        self.quantity = Decimal("0")  # positive = long, negative = short
+        self.avg_price = Decimal("0")
+        self.realized_pnl = Decimal("0")
 
 
 class PositionStore:
@@ -89,11 +90,11 @@ class PositionStore:
                 position.quantity = -remaining_qty
                 position.avg_price = trade.price
 
-    def calculate_unrealized_pnl(self, symbol: str, current_price: float) -> float:
+    def calculate_unrealized_pnl(self, symbol: str, current_price: Decimal) -> Decimal:
         """Calculate unrealized PnL for a position given current price."""
         position = self.positions.get(symbol)
         if not position or position.quantity == 0:
-            return 0.0
+            return Decimal("0")
 
         if position.quantity > 0:
             # Long: profit if price went up
@@ -102,10 +103,10 @@ class PositionStore:
             # Short: profit if price went down
             return abs(position.quantity) * (position.avg_price - current_price)
 
-    def calculate_realized_pnl(self, symbol: str) -> float:
+    def calculate_realized_pnl(self, symbol: str) -> Decimal:
         """Get realized PnL for a symbol."""
         position = self.positions.get(symbol)
-        return position.realized_pnl if position else 0.0
+        return position.realized_pnl if position else Decimal("0")
 
 
 # Global singleton instance
