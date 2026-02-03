@@ -3,11 +3,13 @@ from typing import List
 
 from pydantic import BaseModel
 
+from trades.models import TradeSide
+
 
 class TradeCreate(BaseModel):
     id: str
     symbol: str
-    side: str  # buy / sell
+    side: TradeSide
     price: float
     quantity: float
     timestamp: datetime
@@ -16,7 +18,7 @@ class TradeCreate(BaseModel):
 class TradeResponse(BaseModel):
     id: str
     symbol: str
-    side: str
+    side: TradeSide
     price: float
     quantity: float
     timestamp: datetime
